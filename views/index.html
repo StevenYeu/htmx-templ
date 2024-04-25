@@ -1,0 +1,25 @@
+{{block "index" .}}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script
+      src="https://unpkg.com/htmx.org@1.9.12"
+      integrity="sha384-ujb1lZYygJmzgSwoxRggbCHcjc0rB2XoQrxeTUQyRjrOnlCoYta87iKBWq3EsdM2"
+      crossorigin="anonymous"
+    ></script>
+    <title></title>
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body>
+    {{template "count" .}}
+  </body>
+</html>
+
+{{end}} 
+
+{{block "count" . }} 
+    Count {{ .Count}}
+    <button hx-target="body" hx-post="/count">Count</button>
+{{end}}
