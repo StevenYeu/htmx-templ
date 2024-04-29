@@ -1,6 +1,10 @@
 package views
 
-templ Index(count string) {
+import (
+	"github.com/StevenYeu/fem-htmx/models"
+)
+
+templ Index(page models.Page) {
 	<!DOCTYPE html>
 	<html lang="en">
 		<head>
@@ -11,12 +15,67 @@ templ Index(count string) {
 			<link href="css/style.css" rel="stylesheet"/>
 		</head>
 		<body>
-			@Count(count)
+			@Form(page.FormData)
+			<hr/>
+			@Display(page.Data.Contacts)
 		</body>
+		<script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", (event) => {
+                document.body.addEventListener("htmx:beforeSwap", function(evt){
+                    if (evt.detail.xhr.status === 422) {
+                        evt.detail.shouldSwap = true;
+                        evt.detail.isError = false;
+                    }
+                    });
+                });
+        </script>
 	</html>
 }
 
-templ Count(count string) {
-	Count { count }
-	<button hx-target="body" hx-post="/count">Count</button>
+templ Form(data models.FormData) {
+	<form hx-swap="outerHTML" hx-post="/contacts">
+		name 
+		<input
+			type="text"
+			name="name"
+			if val,ok :=data.Values["name"]; ok {
+				value={ val }
+			}
+		/>
+		email 
+		<input
+			type="text"
+			name="email"
+			if val,ok :=data.Values["email"]; ok {
+				value={ val }
+			}
+		/>
+		if val,ok := data.Errors["email"]; ok {
+			<div style="color:red">
+				{ val }
+			</div>
+		}
+		<button type="submit">Create Contact</button>
+	</form>
+}
+
+templ Display(contacts models.Contacts) {
+	<div id="contacts" style="display:flex; flex-direction: column;">
+		for _, contact := range contacts {
+			@Contact(contact)
+		}
+	</div>
+}
+
+templ Contact(contact models.Contact) {
+	<div>
+		Name <span>{ contact.Name }</span>
+		Email <span>{ contact.Email }</span>
+	</div>
+}
+
+templ OOBContact(contact models.Contact) {
+	<div id="contacts" hx-swap-oob="afterbegin">
+		@Contact(contact)
+	</div>
 }
